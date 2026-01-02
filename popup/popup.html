@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../shared/styles.css" />
+  <link rel="stylesheet" href="./popup.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="card header">
+      <div class="row" style="justify-content:space-between;">
+        <div class="row" style="gap:10px;">
+          <img src="../assets/icon48.png" width="28" height="28" alt="Guardian" style="border-radius:8px;" />
+          <div>
+            <p class="h1" style="margin-bottom:2px;">Guardian</p>
+            <p class="small">Local protection</p>
+          </div>
+        </div>
+        <a href="#" id="openOptions" class="small">Settings</a>
+      </div>
+
+      <div class="row" style="justify-content:space-between;margin-top:12px;">
+        <span class="badge dot on" id="statusBadge">Protection ON</span>
+        <label class="switch" title="Enable/Disable Guardian">
+          <input type="checkbox" id="enabledToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div style="margin-top:12px;">
+        <div class="row">
+          <input class="input" id="quickAdd" placeholder="Add domain or keyword (e.g., xvideos.com or onlyfans)" />
+          <button class="btn primary" id="addBtn">Add</button>
+        </div>
+        <p class="small" id="quickHint" style="margin-top:8px;">Domains must look like example.com. Keywords require 3+ characters.</p>
+      </div>
+
+      <hr />
+
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <p class="h2">Blocked today</p>
+          <p class="h1" id="blockedCount">0</p>
+        </div>
+        <div style="text-align:right;">
+          <p class="h2">Last blocked</p>
+          <p class="small" id="lastBlocked">—</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;padding:12px;">
+      <p class="h2">Quick links</p>
+      <div class="row" style="margin-top:10px;gap:8px;">
+        <button class="btn" id="openRules">Rules</button>
+        <button class="btn" id="openProtection">Protection</button>
+        <button class="btn" id="openLogs">Logs</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./popup.js"></script>
+</body>
+</html>

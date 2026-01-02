@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../shared/styles.css" />
+  <link rel="stylesheet" href="./blocked.css" />
+  <title>Blocked — Guardian</title>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card panel">
+      <div class="row" style="gap:12px;">
+        <img src="../assets/icon128.png" width="42" height="42" alt="Guardian" style="border-radius:14px;" />
+        <div>
+          <div class="h1">Acesso bloqueado</div>
+          <div class="small">Este site corresponde às suas regras de proteção do Guardian.</div>
+        </div>
+      </div>
+
+      <div class="details" style="margin-top:12px;">
+        <div class="small"><b>URL bloqueada:</b> <span id="blockedUrl">—</span></div>
+        <div class="small"><b>Domínio:</b> <span id="domain">—</span></div>
+        <div class="small"><b>Motivo:</b> <span id="reason">—</span></div>
+        <div class="small"><b>Horário:</b> <span id="time">—</span></div>
+      </div>
+
+      <hr />
+
+      <div class="row" style="gap:10px; flex-wrap:wrap;">
+        <button class="btn" id="backBtn">Voltar</button>
+        <button class="btn primary" id="settingsBtn">Configurações</button>
+      </div>
+
+      <p class="small" style="margin-top:12px;">
+        Guardian funciona localmente. Não é uma VPN ou filtro de sistema.
+      </p>
+    </div>
+  </div>
+
+  <script type="module" src="./blocked.js"></script>
+</body>
+</html>

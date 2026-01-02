@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Guardian",
+  "version": "1.0.0",
+  "description": "Local content blocking for Chrome using domain, URL patterns, and keyword rules, protected by a password.",
+  "action": {
+    "default_title": "Guardian",
+    "default_popup": "popup/popup.html"
+  },
+  "icons": {
+    "16": "assets/icon16.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "declarativeNetRequest",
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background/service_worker.js",
+    "type": "module"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  }
+}
