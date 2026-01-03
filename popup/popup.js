@@ -1,7 +1,24 @@
 import { storageGet, storageSet, normalizeDomain, normalizeKeyword, isLikelyDomain, isKeywordAllowed } from "../shared/utils.js";
+import { hasPassword } from "../shared/auth.js";
 
 async function refresh(){
-  const data = await storageGet(["enabled","blockedCount","blockLog"]);
+  const data = await storageGet(["enabled","blockedCount","blockLog","setupComplete"]);
+  const pw = await hasPassword();
+  const setupDone = Boolean(data.setupComplete) && pw;
+
+  if(!setupDone){
+    document.getElementById("setupGate")?.classList.remove("hidden");
+    document.getElementById("mainUI")?.classList.add("hidden");
+    document.getElementById("enabledToggle").checked = false;
+    const badge = document.getElementById("statusBadge");
+    badge.classList.remove("on");
+    badge.classList.add("off");
+    badge.textContent = "Setup required";
+    return;
+  }
+
+  document.getElementById("setupGate")?.classList.add("hidden");
+  document.getElementById("mainUI")?.classList.remove("hidden");
   const enabled = data.enabled !== false;
 
   const badge = document.getElementById("statusBadge");
@@ -64,6 +81,10 @@ document.getElementById("quickAdd").addEventListener("keydown", (e)=>{ if(e.key=
 
 document.getElementById("openOptions").addEventListener("click", async (e)=>{
   e.preventDefault();
+  await chrome.runtime.openOptionsPage();
+});
+
+document.getElementById("openOptions2")?.addEventListener("click", async ()=>{
   await chrome.runtime.openOptionsPage();
 });
 

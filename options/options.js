@@ -7,10 +7,35 @@ import {
 } from "../shared/utils.js";
 
 import { rebuildDynamicRules } from "../shared/rules.js";
+import { hasPassword, verifyCredential } from "../shared/auth.js";
 
 let unlockedUntil = 0;
 function isUnlocked(){ return Date.now() < unlockedUntil; }
 function setUnlocked(minutes=10){ unlockedUntil = Date.now() + minutes*60*1000; }
+
+async function isSetupComplete(){
+  const { setupComplete } = await storageGet(["setupComplete"]);
+  return Boolean(setupComplete);
+}
+
+async function refreshIncognitoStatus(){
+  const statusEl = document.getElementById("incognitoStatus");
+  const hintEl = document.getElementById("incognitoHint");
+  if(!statusEl || !hintEl) return;
+
+  try{
+    const allowed = await chrome.extension.isAllowedIncognitoAccess();
+    statusEl.textContent = allowed ? "Enabled" : "Not enabled";
+    statusEl.classList.toggle("ok", allowed);
+    statusEl.classList.toggle("warn", !allowed);
+    hintEl.textContent = allowed
+      ? "Guardian can enforce blocking in Incognito windows."
+      : "To block in Incognito, open chrome://extensions → Guardian → enable 'Allow in Incognito'.";
+  }catch(e){
+    statusEl.textContent = "Unknown";
+    hintEl.textContent = "Unable to detect Incognito permission in this context.";
+  }
+}
 
 async function requireUnlockedOrPrompt(){
   const { lockEnabled, pwHashHex } = await storageGet(["lockEnabled","pwHashHex"]);
@@ -30,13 +55,13 @@ function setTab(name){
 }
 
 async function refreshHeader(){
-  const { enabled } = await storageGet(["enabled"]);
+  const { enabled, setupComplete } = await storageGet(["enabled","setupComplete"]);
   const en = enabled !== false;
   document.getElementById("enabledToggle").checked = en;
   const badge = document.getElementById("statusBadge");
   badge.classList.toggle("on", en);
   badge.classList.toggle("off", !en);
-  badge.textContent = en ? "Protection ON" : "Protection OFF";
+  badge.textContent = (setupComplete ? (en ? "Protection ON" : "Protection OFF") : "Setup required");
 }
 
 function renderList(container, items, onDelete){
@@ -187,8 +212,26 @@ async function clearLogs(){
 }
 
 async function refreshProtection(){
-  const data = await storageGet(["lockEnabled"]);
+  const data = await storageGet(["lockEnabled","blockIncognito"]);
   document.getElementById("lockToggle").checked = data.lockEnabled !== false;
+  const bi = document.getElementById("blockIncognitoToggle");
+  if(bi) bi.checked = data.blockIncognito !== false;
+}
+
+async function toggleBlockIncognito(e){
+  const setupDone = await isSetupComplete();
+  if(!setupDone){
+    await refreshProtection();
+    alert("Complete password setup first.");
+    return;
+  }
+  if(!(await requireUnlockedOrPrompt())){
+    await refreshProtection();
+    return;
+  }
+  await storageSet({ blockIncognito: e.target.checked });
+  await refreshProtection();
+  await refreshIncognitoStatus();
 }
 
 async function setPassword(){
@@ -197,14 +240,33 @@ async function setPassword(){
   if(!p1 || p1.length < 8){ document.getElementById("pwStatus").textContent = "Password must be at least 8 characters."; return; }
   if(p1 !== p2){ document.getElementById("pwStatus").textContent = "Passwords do not match."; return; }
 
-  const { pwSaltB64 } = await storageGet(["pwSaltB64"]);
+  const { pwSaltB64, setupComplete, recommendedBlockedDomains, recommendedBlockedKeywords } = await storageGet([
+    "pwSaltB64","setupComplete","recommendedBlockedDomains","recommendedBlockedKeywords"
+  ]);
   const res = await derivePasswordHash(p1, pwSaltB64); // keeps existing salt if present
-  await storageSet({ pwSaltB64: res.saltB64, pwHashHex: res.hashHex });
+  await storageSet({ pwSaltB64: res.saltB64, pwHashHex: res.hashHex, lockEnabled: true });
 
   document.getElementById("pw1").value = "";
   document.getElementById("pw2").value = "";
-  document.getElementById("pwStatus").textContent = "Password saved.";
+  // First-run: complete setup and optionally apply recommended defaults
+  if(!setupComplete){
+    const recD = Array.isArray(recommendedBlockedDomains) ? recommendedBlockedDomains : [];
+    const recK = Array.isArray(recommendedBlockedKeywords) ? recommendedBlockedKeywords : [];
+    await storageSet({
+      setupComplete: true,
+      enabled: true,
+      blockedDomains: recD,
+      blockedSubdomains: recD,
+      blockedKeywords: recK
+    });
+    document.getElementById("pwStatus").textContent = "Password created. Setup completed and protection enabled.";
+  }else{
+    document.getElementById("pwStatus").textContent = "Password saved.";
+  }
   setUnlocked(15);
+  await refreshHeader();
+  await refreshRules();
+  await refreshIncognitoStatus();
 }
 
 async function genRecovery(){
@@ -236,40 +298,15 @@ async function genRecovery(){
 async function authenticate(){
   const v = document.getElementById("authValue").value.trim();
   if(!v){ document.getElementById("authStatus").textContent = "Enter password or recovery code/phrase."; return; }
-  const data = await storageGet(["pwSaltB64","pwHashHex","recoveryCodeHashes","recoveryPhraseHash"]);
-
-  // Password
-  if(data.pwHashHex && data.pwSaltB64){
-    const { hashHex } = await derivePasswordHash(v, data.pwSaltB64);
-    if(hashHex === data.pwHashHex){
-      setUnlocked(20);
-      document.getElementById("authStatus").textContent = "Unlocked for 20 minutes.";
-      document.getElementById("authValue").value = "";
-      return;
-    }
-  }
-
-  // Recovery code (single-use)
-  const h = await sha256Hex(v);
-  const codes = Array.isArray(data.recoveryCodeHashes) ? data.recoveryCodeHashes : [];
-  const idx = codes.indexOf(h);
-  if(idx >= 0){
-    codes.splice(idx, 1);
-    await storageSet({ recoveryCodeHashes: codes });
+  const res = await verifyCredential(v);
+  if(res.ok){
     setUnlocked(20);
-    document.getElementById("authStatus").textContent = "Unlocked (recovery code used). Code invalidated.";
+    document.getElementById("authStatus").textContent = res.method === "recovery_code"
+      ? "Unlocked (recovery code used). Code invalidated."
+      : "Unlocked for 20 minutes.";
     document.getElementById("authValue").value = "";
     return;
   }
-
-  // Recovery phrase
-  if(data.recoveryPhraseHash && h === data.recoveryPhraseHash){
-    setUnlocked(20);
-    document.getElementById("authStatus").textContent = "Unlocked (recovery phrase verified).";
-    document.getElementById("authValue").value = "";
-    return;
-  }
-
   document.getElementById("authStatus").textContent = "Authentication failed.";
 }
 
@@ -279,6 +316,14 @@ async function lockNow(){
 }
 
 async function toggleEnabled(e){
+  const setupDone = await isSetupComplete();
+  if(!setupDone){
+    // Setup-first: prevent enabling/disabling until password exists
+    await refreshHeader();
+    setTab("protection");
+    alert("Complete password setup first.");
+    return;
+  }
   if(!(await requireUnlockedOrPrompt())){
     await refreshHeader();
     return;
@@ -293,7 +338,30 @@ async function toggleLock(e){
     await refreshProtection();
     return;
   }
+  // Never allow disabling lock before setup is complete
+  const setupDone = await isSetupComplete();
+  if(!setupDone && !e.target.checked){
+    e.target.checked = true;
+    await storageSet({ lockEnabled: true });
+    return;
+  }
   await storageSet({ lockEnabled: e.target.checked });
+}
+
+async function toggleIncognitoBlock(e){
+  const setupDone = await isSetupComplete();
+  if(!setupDone){
+    e.target.checked = true;
+    await storageSet({ blockIncognito: true });
+    setTab("protection");
+    alert("Complete password setup first.");
+    return;
+  }
+  if(!(await requireUnlockedOrPrompt())){
+    await refreshProtection();
+    return;
+  }
+  await storageSet({ blockIncognito: e.target.checked });
 }
 
 document.querySelectorAll(".navbtn").forEach(b=> b.addEventListener("click", ()=> setTab(b.dataset.tab)));
@@ -313,6 +381,7 @@ document.getElementById("rebuildBtn").addEventListener("click", rebuildNow);
 document.getElementById("clearLogsBtn").addEventListener("click", clearLogs);
 
 document.getElementById("lockToggle").addEventListener("change", toggleLock);
+document.getElementById("blockIncognitoToggle").addEventListener("change", toggleIncognitoBlock);
 document.getElementById("setPwBtn").addEventListener("click", setPassword);
 document.getElementById("genRecoveryBtn").addEventListener("click", genRecovery);
 document.getElementById("authBtn").addEventListener("click", authenticate);
@@ -323,5 +392,15 @@ document.getElementById("lockNowBtn").addEventListener("click", lockNow);
   await refreshRules();
   await refreshLogs();
   await refreshProtection();
+  await refreshIncognitoStatus();
+
+  const setupDone = await isSetupComplete();
+  const pw = await hasPassword();
+  if(!setupDone || !pw){
+    setTab("protection");
+    const banner = document.getElementById("setupBanner");
+    if(banner) banner.hidden = false;
+    return;
+  }
   setTab("rules");
 })();

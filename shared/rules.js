@@ -64,8 +64,33 @@ function buildAllowSubdomainRule(domain, idx){
   };
 }
 
+function buildAllowUrlRule(url, idx){
+  // Anchored exact-match rule (allow). Uses regexFilter to avoid urlFilter escaping differences.
+  const re = `^${escapeRegex(url)}$`;
+  return {
+    id: makeId(7, idx),
+    priority: 100,
+    action: { type: "allow" },
+    condition: { regexFilter: re, resourceTypes: ["main_frame"], isUrlFilterCaseSensitive: false }
+  };
+}
+
+function buildAllowDomainTempRule(domain, idx){
+  return {
+    id: makeId(6, idx),
+    priority: 90,
+    action: { type: "allow" },
+    condition: { requestDomains: [domain], resourceTypes: ["main_frame"] }
+  };
+}
+
 export async function rebuildDynamicRules(){
-  const data = await storageGet(["enabled","blockedDomains","blockedSubdomains","blockedKeywords","allowDomains","allowSubdomains"]);
+  const data = await storageGet([
+    "enabled",
+    "blockedDomains","blockedSubdomains","blockedKeywords",
+    "allowDomains","allowSubdomains",
+    "tempAllowDomains","tempAllowUrls"
+  ]);
   const enabled = data.enabled !== false; // default ON
 
   // Normaliza e deduplica todos os arrays para evitar IDs duplicados
@@ -82,6 +107,21 @@ export async function rebuildDynamicRules(){
   const uniqueAllowDomains = [...new Set(allowDomainsRaw.map(normalizeDomain).filter(isLikelyDomain))];
   const uniqueAllowSubdomains = [...new Set(allowSubdomainsRaw.map(normalizeDomain).filter(isLikelyDomain))];
 
+  // Temporary allowlists (with expiry)
+  const now = Date.now();
+  const tempAllowDomainsRaw = Array.isArray(data.tempAllowDomains) ? data.tempAllowDomains : [];
+  const tempAllowUrlsRaw = Array.isArray(data.tempAllowUrls) ? data.tempAllowUrls : [];
+
+  const tempDomains = tempAllowDomainsRaw
+    .filter(x => x && typeof x.domain === "string" && typeof x.until === "number" && x.until > now)
+    .map(x => normalizeDomain(x.domain))
+    .filter(isLikelyDomain);
+
+  const tempUrls = tempAllowUrlsRaw
+    .filter(x => x && typeof x.url === "string" && typeof x.until === "number" && x.until > now)
+    .map(x => x.url.trim())
+    .filter(u => /^https?:\/\//i.test(u));
+
   const existing = await chrome.declarativeNetRequest.getDynamicRules();
   const removeIds = existing.map(r => r.id);
 
@@ -96,6 +136,10 @@ export async function rebuildDynamicRules(){
   uniqueAllowDomains.forEach((d,i)=>allowRules.push(buildAllowDomainRule(d,i)));
   uniqueAllowSubdomains.forEach((d,i)=>allowRules.push(buildAllowSubdomainRule(d,i)));
 
+  const tempAllowRules = [];
+  [...new Set(tempDomains)].forEach((d,i)=>tempAllowRules.push(buildAllowDomainTempRule(d,i)));
+  [...new Set(tempUrls)].forEach((u,i)=>tempAllowRules.push(buildAllowUrlRule(u,i)));
+
   const blockRules = [];
   uniqueBlockedDomains.forEach((d,i)=>blockRules.push(buildDomainRule(d,i)));
   uniqueBlockedSubdomains.forEach((d,i)=>blockRules.push(buildSubdomainRule(d,i)));
@@ -103,6 +147,15 @@ export async function rebuildDynamicRules(){
 
   await chrome.declarativeNetRequest.updateDynamicRules({
     removeRuleIds: removeIds,
-    addRules: [...allowRules, ...blockRules]
+    addRules: [...tempAllowRules, ...allowRules, ...blockRules]
   });
+
+  // Best-effort cleanup (non-blocking)
+  try{
+    const cleanedDomains = tempAllowDomainsRaw.filter(x => x && typeof x.until === "number" && x.until > now);
+    const cleanedUrls = tempAllowUrlsRaw.filter(x => x && typeof x.until === "number" && x.until > now);
+    if(cleanedDomains.length !== tempAllowDomainsRaw.length || cleanedUrls.length !== tempAllowUrlsRaw.length){
+      await chrome.storage.local.set({ tempAllowDomains: cleanedDomains, tempAllowUrls: cleanedUrls });
+    }
+  }catch(e){ /* ignore */ }
 }

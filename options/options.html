@@ -88,6 +88,11 @@
         <div class="h1">Protection</div>
         <p class="p">Lock Guardian settings with a password. When lock is enabled, changes require authentication.</p>
 
+        <div id="setupBanner" class="card" style="margin-top:12px;padding:12px;border:1px solid rgba(255,255,255,0.14);" hidden>
+          <div class="h2">First-time setup required</div>
+          <p class="p" style="margin-top:6px;">To use Guardian, you must create a password first. After you save the password, Guardian will enable protection and apply the recommended default block list.</p>
+        </div>
+
         <hr />
 
         <div class="grid2">
@@ -108,6 +113,25 @@
             <input class="input" id="pw2" type="password" placeholder="Confirm password" style="margin-top:8px;" />
             <button class="btn primary" id="setPwBtn" style="margin-top:10px;">Save password</button>
             <p class="small" id="pwStatus" style="margin-top:10px;"></p>
+          </div>
+
+          <div>
+            <div class="h2">Incognito blocking</div>
+            <p class="p">Guardian can block websites in Incognito windows only if Chrome allows this extension in Incognito.</p>
+            <div class="row" style="justify-content:space-between;margin-top:10px;">
+              <span class="small">Allow in Incognito</span>
+              <span class="badge" id="incognitoStatus">—</span>
+            </div>
+            <p class="small" id="incognitoHint" style="margin-top:10px;"></p>
+            <hr />
+            <div class="row" style="justify-content:space-between;margin-top:10px;">
+              <span class="small">Block navigation in Incognito windows</span>
+              <label class="switch">
+                <input type="checkbox" id="blockIncognitoToggle" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <p class="small" style="margin-top:10px;">If Incognito is not enabled above, this toggle will not have effect.</p>
           </div>
 
           <div>

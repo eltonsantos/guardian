@@ -1,4 +1,5 @@
-import { storageGet, storageSet } from "../shared/utils.js";
+import { storageGet, storageSet, normalizeDomain } from "../shared/utils.js";
+import { verifyCredential } from "../shared/auth.js";
 
 function getBlockInfo(){
   const params = new URLSearchParams(window.location.search);
@@ -63,4 +64,61 @@ function truncateUrl(url, maxLen = 60){
 
   document.getElementById("backBtn").addEventListener("click", ()=> history.back());
   document.getElementById("settingsBtn").addEventListener("click", ()=> chrome.runtime.openOptionsPage());
+
+  // Unlock-gated allow actions
+  const unlockBtn = document.getElementById("unlockBtn");
+  const unlockValue = document.getElementById("unlockValue");
+  const unlockStatus = document.getElementById("unlockStatus");
+  const allow10Btn = document.getElementById("allow10Btn");
+  const allowDomainBtn = document.getElementById("allowDomainBtn");
+
+  let unlocked = false;
+  async function doUnlock(){
+    const v = (unlockValue?.value || "").trim();
+    if(!v){ unlockStatus.textContent = "Digite a senha ou recovery."; return; }
+    const res = await verifyCredential(v);
+    if(!res.ok){
+      unlockStatus.textContent = "Autenticação falhou.";
+      unlocked = false;
+      allow10Btn.disabled = true;
+      allowDomainBtn.disabled = true;
+      return;
+    }
+    unlocked = true;
+    unlockStatus.textContent = "Autenticado. Escolha uma opção de liberação.";
+    allow10Btn.disabled = false;
+    allowDomainBtn.disabled = false;
+    unlockValue.value = "";
+  }
+
+  unlockBtn?.addEventListener("click", doUnlock);
+  unlockValue?.addEventListener("keydown", (e)=>{ if(e.key==="Enter") doUnlock(); });
+
+  async function allowFor10Minutes(){
+    if(!unlocked) return;
+    if(!url){ unlockStatus.textContent = "URL desconhecida."; return; }
+    const until = Date.now() + 10*60*1000;
+    const { tempAllowUrls } = await storageGet(["tempAllowUrls"]);
+    const arr = Array.isArray(tempAllowUrls) ? tempAllowUrls : [];
+    arr.unshift({ url, until });
+    await storageSet({ tempAllowUrls: arr.slice(0,200) });
+    // Navigate to the original URL
+    window.location.replace(url);
+  }
+
+  async function allowThisDomain(){
+    if(!unlocked) return;
+    if(!host || host === "—"){ unlockStatus.textContent = "Domínio desconhecido."; return; }
+    const domain = normalizeDomain(host);
+    const { allowDomains, allowSubdomains } = await storageGet(["allowDomains","allowSubdomains"]);
+    const ad = Array.isArray(allowDomains) ? allowDomains : [];
+    const as = Array.isArray(allowSubdomains) ? allowSubdomains : [];
+    if(!ad.includes(domain)) ad.unshift(domain);
+    if(!as.includes(domain)) as.unshift(domain);
+    await storageSet({ allowDomains: ad, allowSubdomains: as });
+    window.location.replace(url || `https://${domain}/`);
+  }
+
+  allow10Btn?.addEventListener("click", allowFor10Minutes);
+  allowDomainBtn?.addEventListener("click", allowThisDomain);
 })();
