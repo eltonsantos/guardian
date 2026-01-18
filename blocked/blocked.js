@@ -12,13 +12,13 @@ function getBlockInfo(){
 function formatReason(type, match){
   switch(type){
     case "domain":
-      return `Domínio bloqueado: ${match}`;
+      return `Blocked domain: ${match}`;
     case "subdomain":
-      return `Subdomínio bloqueado: *.${match}`;
+      return `Blocked subdomain: *.${match}`;
     case "keyword":
-      return `Palavra-chave bloqueada: "${match}"`;
+      return `Blocked keyword: "${match}"`;
     default:
-      return "Regra de proteção Guardian";
+      return "Guardian protection rule";
   }
 }
 
@@ -75,17 +75,17 @@ function truncateUrl(url, maxLen = 60){
   let unlocked = false;
   async function doUnlock(){
     const v = (unlockValue?.value || "").trim();
-    if(!v){ unlockStatus.textContent = "Digite a senha ou recovery."; return; }
+    if(!v){ unlockStatus.textContent = "Enter password or recovery code/phrase."; return; }
     const res = await verifyCredential(v);
     if(!res.ok){
-      unlockStatus.textContent = "Autenticação falhou.";
+      unlockStatus.textContent = "Authentication failed.";
       unlocked = false;
       allow10Btn.disabled = true;
       allowDomainBtn.disabled = true;
       return;
     }
     unlocked = true;
-    unlockStatus.textContent = "Autenticado. Escolha uma opção de liberação.";
+    unlockStatus.textContent = "Authenticated. Choose an allow option.";
     allow10Btn.disabled = false;
     allowDomainBtn.disabled = false;
     unlockValue.value = "";
@@ -96,7 +96,7 @@ function truncateUrl(url, maxLen = 60){
 
   async function allowFor10Minutes(){
     if(!unlocked) return;
-    if(!url){ unlockStatus.textContent = "URL desconhecida."; return; }
+    if(!url){ unlockStatus.textContent = "Unknown URL."; return; }
     const until = Date.now() + 10*60*1000;
     const { tempAllowUrls } = await storageGet(["tempAllowUrls"]);
     const arr = Array.isArray(tempAllowUrls) ? tempAllowUrls : [];
@@ -108,7 +108,7 @@ function truncateUrl(url, maxLen = 60){
 
   async function allowThisDomain(){
     if(!unlocked) return;
-    if(!host || host === "—"){ unlockStatus.textContent = "Domínio desconhecido."; return; }
+    if(!host || host === "—"){ unlockStatus.textContent = "Unknown domain."; return; }
     const domain = normalizeDomain(host);
     const { allowDomains, allowSubdomains } = await storageGet(["allowDomains","allowSubdomains"]);
     const ad = Array.isArray(allowDomains) ? allowDomains : [];

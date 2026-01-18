@@ -244,7 +244,7 @@ async function setPassword(){
     "pwSaltB64","pwHashHex","setupComplete","recommendedBlockedDomains","recommendedBlockedKeywords"
   ]);
   
-  // Se já existe uma senha, exigir que esteja desbloqueado para alterar
+  // If a password already exists, require unlock to change it
   if(pwHashHex){
     if(!isUnlocked()){
       document.getElementById("pwStatus").textContent = "You must unlock first to change your password. Use your current password or recovery code/phrase below.";

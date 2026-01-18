@@ -41,7 +41,7 @@ export function isKeywordAllowed(kw){ return kw.length >= 3; }
 export function safeUrlForDisplay(url){
   try{ 
     const u = new URL(url);
-    // Ofuscar o pathname para não mostrar URL completa
+    // Obfuscate the pathname to prevent copying full URL
     // Ex: /video47789917/durma_na_sua_casa → /vid***/dur***asa
     const parts = u.pathname.split('/').filter(Boolean);
     const obfuscated = parts.map(part => {
@@ -52,7 +52,7 @@ export function safeUrlForDisplay(url){
     }).join('/');
     return u.hostname + (obfuscated ? '/' + obfuscated : '');
   }catch(e){ 
-    // Fallback para strings que não são URLs válidas
+    // Fallback for strings that are not valid URLs
     const s = String(url||"");
     if(s.length <= 10) return '***';
     return s.slice(0,3) + '***' + s.slice(-3);

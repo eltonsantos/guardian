@@ -27,16 +27,16 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     if (typeof current[k] === "undefined") toSet[k] = defaults[k];
   }
   
-  // Salvar data de instalação apenas na primeira instalação
+  // Save installation date only on first install
   if(details.reason === "install"){
     toSet.installedAt = new Date().toISOString();
   }
   
   if (Object.keys(toSet).length) {
     await chrome.storage.local.set(toSet);
-    // O onChanged listener será disparado automaticamente e chamará rebuildDynamicRules
+    // The onChanged listener will be triggered automatically and call rebuildDynamicRules
   } else {
-    // Se não há nada para definir, precisamos chamar manualmente
+    // If there's nothing to set, we need to call manually
     await rebuildDynamicRules();
   }
 

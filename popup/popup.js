@@ -10,7 +10,7 @@ async function refresh(){
   const pw = await hasPassword();
   const setupDone = Boolean(data.setupComplete) && pw;
   
-  // Exibir data de instalação
+  // Display installation date
   const installedEl = document.getElementById("installedAt");
   if(installedEl && data.installedAt){
     const d = new Date(data.installedAt);
@@ -86,17 +86,17 @@ document.getElementById("enabledToggle").addEventListener("change", async (e) =>
   const data = await storageGet(["setupComplete", "lockEnabled", "pwHashHex"]);
   const setupDone = Boolean(data.setupComplete) && Boolean(data.pwHashHex);
   
-  // Se setup não está completo, não permitir alteração
+  // If setup is not complete, don't allow changes
   if(!setupDone){
     e.target.checked = false;
     await refresh();
     return;
   }
   
-  // Se lock está habilitado e existe senha, verificar desbloqueio
+  // If lock is enabled and password exists, check unlock status
   if(data.lockEnabled !== false && data.pwHashHex){
     if(!isUnlocked()){
-      // Reverter o toggle e mostrar modal de desbloqueio
+      // Revert the toggle and show unlock modal
       e.target.checked = !e.target.checked;
       showUnlockModal();
       return;
@@ -123,7 +123,7 @@ document.getElementById("openRules").addEventListener("click", async ()=> chrome
 document.getElementById("openProtection").addEventListener("click", async ()=> chrome.runtime.openOptionsPage());
 document.getElementById("openLogs").addEventListener("click", async ()=> chrome.runtime.openOptionsPage());
 
-// Modal de desbloqueio
+// Unlock modal
 function showUnlockModal(){
   const modal = document.getElementById("unlockModal");
   if(modal) modal.classList.remove("hidden");
@@ -153,7 +153,7 @@ async function doUnlock(){
   if(res.ok){
     setUnlocked(20);
     hideUnlockModal();
-    // Agora que está desbloqueado, executar a ação pendente
+    // Now unlocked, clear status
     if(status) status.textContent = "";
     return;
   }

@@ -100,7 +100,7 @@ export async function rebuildDynamicRules(){
   const allowDomainsRaw = Array.isArray(data.allowDomains) ? data.allowDomains : [];
   const allowSubdomainsRaw = Array.isArray(data.allowSubdomains) ? data.allowSubdomains : [];
 
-  // Deduplica após normalização
+  // Deduplicate after normalization
   const uniqueBlockedDomains = [...new Set(blockedDomainsRaw.map(normalizeDomain).filter(isLikelyDomain))];
   const uniqueBlockedSubdomains = [...new Set(blockedSubdomainsRaw.map(normalizeDomain).filter(isLikelyDomain))];
   const uniqueBlockedKeywords = [...new Set(blockedKeywordsRaw.map(normalizeKeyword).filter(isKeywordAllowed))];
