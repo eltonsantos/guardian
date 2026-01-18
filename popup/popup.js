@@ -1,10 +1,21 @@
 import { storageGet, storageSet, normalizeDomain, normalizeKeyword, isLikelyDomain, isKeywordAllowed } from "../shared/utils.js";
-import { hasPassword } from "../shared/auth.js";
+import { hasPassword, verifyCredential } from "../shared/auth.js";
+
+let unlockedUntil = 0;
+function isUnlocked(){ return Date.now() < unlockedUntil; }
+function setUnlocked(minutes=10){ unlockedUntil = Date.now() + minutes*60*1000; }
 
 async function refresh(){
-  const data = await storageGet(["enabled","blockedCount","blockLog","setupComplete"]);
+  const data = await storageGet(["enabled","blockedCount","blockLog","setupComplete","installedAt"]);
   const pw = await hasPassword();
   const setupDone = Boolean(data.setupComplete) && pw;
+  
+  // Exibir data de instalação
+  const installedEl = document.getElementById("installedAt");
+  if(installedEl && data.installedAt){
+    const d = new Date(data.installedAt);
+    installedEl.textContent = `Installed: ${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+  }
 
   if(!setupDone){
     document.getElementById("setupGate")?.classList.remove("hidden");
@@ -72,6 +83,26 @@ async function quickAdd(){
 }
 
 document.getElementById("enabledToggle").addEventListener("change", async (e) => {
+  const data = await storageGet(["setupComplete", "lockEnabled", "pwHashHex"]);
+  const setupDone = Boolean(data.setupComplete) && Boolean(data.pwHashHex);
+  
+  // Se setup não está completo, não permitir alteração
+  if(!setupDone){
+    e.target.checked = false;
+    await refresh();
+    return;
+  }
+  
+  // Se lock está habilitado e existe senha, verificar desbloqueio
+  if(data.lockEnabled !== false && data.pwHashHex){
+    if(!isUnlocked()){
+      // Reverter o toggle e mostrar modal de desbloqueio
+      e.target.checked = !e.target.checked;
+      showUnlockModal();
+      return;
+    }
+  }
+  
   await storageSet({ enabled: e.target.checked });
   await refresh();
 });
@@ -91,5 +122,50 @@ document.getElementById("openOptions2")?.addEventListener("click", async ()=>{
 document.getElementById("openRules").addEventListener("click", async ()=> chrome.runtime.openOptionsPage());
 document.getElementById("openProtection").addEventListener("click", async ()=> chrome.runtime.openOptionsPage());
 document.getElementById("openLogs").addEventListener("click", async ()=> chrome.runtime.openOptionsPage());
+
+// Modal de desbloqueio
+function showUnlockModal(){
+  const modal = document.getElementById("unlockModal");
+  if(modal) modal.classList.remove("hidden");
+  document.getElementById("unlockValue")?.focus();
+}
+
+function hideUnlockModal(){
+  const modal = document.getElementById("unlockModal");
+  if(modal) modal.classList.add("hidden");
+  const input = document.getElementById("unlockValue");
+  if(input) input.value = "";
+  const status = document.getElementById("unlockStatus");
+  if(status) status.textContent = "";
+}
+
+async function doUnlock(){
+  const input = document.getElementById("unlockValue");
+  const status = document.getElementById("unlockStatus");
+  const v = (input?.value || "").trim();
+  
+  if(!v){
+    if(status) status.textContent = "Enter password or recovery code/phrase.";
+    return;
+  }
+  
+  const res = await verifyCredential(v);
+  if(res.ok){
+    setUnlocked(20);
+    hideUnlockModal();
+    // Agora que está desbloqueado, executar a ação pendente
+    if(status) status.textContent = "";
+    return;
+  }
+  
+  if(status) status.textContent = "Authentication failed.";
+}
+
+document.getElementById("unlockBtn")?.addEventListener("click", doUnlock);
+document.getElementById("unlockValue")?.addEventListener("keydown", (e)=>{ if(e.key==="Enter") doUnlock(); });
+document.getElementById("unlockCancel")?.addEventListener("click", hideUnlockModal);
+document.getElementById("unlockModal")?.addEventListener("click", (e)=>{
+  if(e.target.id === "unlockModal") hideUnlockModal();
+});
 
 refresh();

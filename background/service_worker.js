@@ -1,6 +1,6 @@
 import { rebuildDynamicRules } from "../shared/rules.js";
 
-chrome.runtime.onInstalled.addListener(async () => {
+chrome.runtime.onInstalled.addListener(async (details) => {
   const defaults = {
     // Setup-first: Guardian stays disabled until a password is created.
     enabled: false,
@@ -25,6 +25,11 @@ chrome.runtime.onInstalled.addListener(async () => {
   const toSet = {};
   for (const k of Object.keys(defaults)){
     if (typeof current[k] === "undefined") toSet[k] = defaults[k];
+  }
+  
+  // Salvar data de instalação apenas na primeira instalação
+  if(details.reason === "install"){
+    toSet.installedAt = new Date().toISOString();
   }
   
   if (Object.keys(toSet).length) {

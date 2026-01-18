@@ -79,6 +79,24 @@
         <button class="btn" id="openLogs">Logs</button>
       </div>
     </div>
+
+    <div class="footer">
+      <span class="small" id="installedAt">Installed: —</span>
+    </div>
+    </div>
+
+    <!-- Modal de desbloqueio -->
+    <div id="unlockModal" class="modal hidden">
+      <div class="modal-content card">
+        <div class="h2">Unlock Required</div>
+        <p class="small" style="margin-top:8px;">Enter your password or recovery code/phrase to make changes.</p>
+        <input class="input" id="unlockValue" type="password" placeholder="Password or recovery" style="margin-top:12px;" />
+        <div class="row" style="margin-top:12px;gap:8px;">
+          <button class="btn primary" id="unlockBtn">Unlock</button>
+          <button class="btn" id="unlockCancel">Cancel</button>
+        </div>
+        <p class="small" id="unlockStatus" style="margin-top:10px;color:#ff6b6b;"></p>
+      </div>
     </div>
   </div>
 

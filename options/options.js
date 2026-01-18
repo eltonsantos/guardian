@@ -240,9 +240,18 @@ async function setPassword(){
   if(!p1 || p1.length < 8){ document.getElementById("pwStatus").textContent = "Password must be at least 8 characters."; return; }
   if(p1 !== p2){ document.getElementById("pwStatus").textContent = "Passwords do not match."; return; }
 
-  const { pwSaltB64, setupComplete, recommendedBlockedDomains, recommendedBlockedKeywords } = await storageGet([
-    "pwSaltB64","setupComplete","recommendedBlockedDomains","recommendedBlockedKeywords"
+  const { pwSaltB64, pwHashHex, setupComplete, recommendedBlockedDomains, recommendedBlockedKeywords } = await storageGet([
+    "pwSaltB64","pwHashHex","setupComplete","recommendedBlockedDomains","recommendedBlockedKeywords"
   ]);
+  
+  // Se já existe uma senha, exigir que esteja desbloqueado para alterar
+  if(pwHashHex){
+    if(!isUnlocked()){
+      document.getElementById("pwStatus").textContent = "You must unlock first to change your password. Use your current password or recovery code/phrase below.";
+      return;
+    }
+  }
+  
   const res = await derivePasswordHash(p1, pwSaltB64); // keeps existing salt if present
   await storageSet({ pwSaltB64: res.saltB64, pwHashHex: res.hashHex, lockEnabled: true });
 
