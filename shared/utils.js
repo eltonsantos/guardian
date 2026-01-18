@@ -39,5 +39,22 @@ export function normalizeKeyword(input){ return (input||"").trim().toLowerCase()
 export function isKeywordAllowed(kw){ return kw.length >= 3; }
 
 export function safeUrlForDisplay(url){
-  try{ const u = new URL(url); return u.origin + u.pathname; }catch(e){ return String(url||""); }
+  try{ 
+    const u = new URL(url);
+    // Ofuscar o pathname para não mostrar URL completa
+    // Ex: /video47789917/durma_na_sua_casa → /vid***/dur***asa
+    const parts = u.pathname.split('/').filter(Boolean);
+    const obfuscated = parts.map(part => {
+      if(part.length <= 6) return '***';
+      const first3 = part.slice(0, 3);
+      const last3 = part.slice(-3);
+      return `${first3}***${last3}`;
+    }).join('/');
+    return u.hostname + (obfuscated ? '/' + obfuscated : '');
+  }catch(e){ 
+    // Fallback para strings que não são URLs válidas
+    const s = String(url||"");
+    if(s.length <= 10) return '***';
+    return s.slice(0,3) + '***' + s.slice(-3);
+  }
 }
