@@ -22,8 +22,8 @@
       <div class="setup-tip">
         <p class="small">
           <span class="setup-tip-title">Incognito blocking:</span>
-          To enforce blocking in Incognito windows, open the extension’s details and enable
-          “Allow in Incognito”.
+          To enforce blocking in Incognito windows, open the extension's details and enable
+          "Allow in Incognito".
         </p>
       </div>
     </div>
@@ -34,7 +34,7 @@
         <div class="row" style="gap:10px;">
           <img src="../assets/icon48.png" width="28" height="28" alt="Guardian" style="border-radius:8px;" />
           <div>
-            <p class="h1" style="margin-bottom:2px;">Guardian</p>
+            <p class="h1" style="margin-bottom:2px;">Guardian <span class="pro-badge hidden" id="proBadge">PRO</span></p>
             <p class="small">Local protection</p>
           </div>
         </div>
@@ -66,8 +66,36 @@
         </div>
         <div style="text-align:right;">
           <p class="h2">Last blocked</p>
-          <p class="small" id="lastBlocked">—</p>
+          <p class="small" id="lastBlocked">&mdash;</p>
         </div>
+      </div>
+    </div>
+
+    <!-- DNS Status (Pro) -->
+    <div class="card dns-status-card" id="dnsStatusCard" style="margin-top:12px;padding:14px;">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <p class="h2">Network DNS</p>
+          <div class="row" style="margin-top:6px;gap:6px;">
+            <span class="dns-dot" id="dnsDot"></span>
+            <span class="small" id="dnsLabel">Checking...</span>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <p class="h2">Score</p>
+          <p class="h1" id="protectionScore">--</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upgrade CTA (Free users) -->
+    <div class="card upgrade-cta hidden" id="upgradeCta" style="margin-top:12px;padding:14px;">
+      <div class="row" style="gap:10px;">
+        <div style="flex:1;">
+          <p class="h2" style="color:var(--warn);">Upgrade to Pro</p>
+          <p class="small" style="margin-top:4px;">Block content on all devices via DNS. &euro;2.99/month.</p>
+        </div>
+        <button class="btn upgrade-btn" id="upgradeBtn">Upgrade</button>
       </div>
     </div>
 
@@ -81,11 +109,11 @@
     </div>
 
     <div class="footer">
-      <span class="small" id="installedAt">Installed: —</span>
+      <span class="small" id="installedAt">Installed: &mdash;</span>
     </div>
     </div>
 
-    <!-- Modal de desbloqueio -->
+    <!-- Unlock modal -->
     <div id="unlockModal" class="modal hidden">
       <div class="modal-content card">
         <div class="h2">Unlock Required</div>

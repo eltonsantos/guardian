@@ -12,7 +12,7 @@
     <div class="row" style="gap:10px; align-items:center;">
       <img src="../assets/icon48.png" width="28" height="28" alt="Guardian" style="border-radius:8px;" />
       <div>
-        <div class="h1">Guardian</div>
+        <div class="h1">Guardian <span class="pro-badge hidden" id="proBadgeTop">PRO</span></div>
         <div class="small">Settings & protection</div>
       </div>
     </div>
@@ -29,11 +29,14 @@
     <div class="sidebar card">
       <button class="navbtn active" data-tab="rules">Rules</button>
       <button class="navbtn" data-tab="protection">Protection</button>
+      <button class="navbtn" data-tab="network">Network <span class="nav-pro-tag">PRO</span></button>
       <button class="navbtn" data-tab="logs">Logs</button>
+      <button class="navbtn" data-tab="subscription">Subscription</button>
       <button class="navbtn" data-tab="about">About</button>
     </div>
 
     <div class="content">
+      <!-- Rules tab -->
       <div class="card panel" id="tab-rules">
         <div class="row" style="justify-content:space-between;">
           <div>
@@ -84,6 +87,7 @@
         </div>
       </div>
 
+      <!-- Protection tab -->
       <div class="card panel" id="tab-protection" style="display:none;">
         <div class="h1">Protection</div>
         <p class="p">Lock Guardian settings with a password. When lock is enabled, changes require authentication.</p>
@@ -120,7 +124,7 @@
             <p class="p">Guardian can block websites in Incognito windows only if Chrome allows this extension in Incognito.</p>
             <div class="row" style="justify-content:space-between;margin-top:10px;">
               <span class="small">Allow in Incognito</span>
-              <span class="badge" id="incognitoStatus">—</span>
+              <span class="badge" id="incognitoStatus">&mdash;</span>
             </div>
             <p class="small" id="incognitoHint" style="margin-top:10px;"></p>
             <hr />
@@ -164,6 +168,65 @@
         </div>
       </div>
 
+      <!-- Network tab (Pro) -->
+      <div class="card panel" id="tab-network" style="display:none;">
+        <div class="row" style="justify-content:space-between;">
+          <div>
+            <div class="h1">Network Protection <span class="pro-badge-inline">PRO</span></div>
+            <p class="p">Configure DNS-level blocking to protect all devices on your network.</p>
+          </div>
+        </div>
+
+        <!-- Pro gate overlay -->
+        <div class="pro-gate hidden" id="networkProGate">
+          <div class="pro-gate-content">
+            <div class="h2" style="color:var(--warn);">Pro feature</div>
+            <p class="p" style="margin-top:6px;">Network protection is available for Guardian Pro subscribers.</p>
+            <button class="btn upgrade-btn-inline" id="networkUpgradeBtn" style="margin-top:12px;">Upgrade to Pro &mdash; &euro;2.99/month</button>
+          </div>
+        </div>
+
+        <div id="networkContent">
+          <hr />
+
+          <div class="grid2">
+            <div>
+              <div class="h2">DNS Status</div>
+              <div class="dns-status-box" id="optDnsStatus" style="margin-top:10px;">
+                <div class="row" style="gap:8px;">
+                  <span class="dns-indicator" id="optDnsDot"></span>
+                  <span id="optDnsLabel">Not checked</span>
+                </div>
+                <button class="btn" id="checkDnsBtn" style="margin-top:10px;">Check DNS now</button>
+                <p class="small" id="optDnsTime" style="margin-top:8px;"></p>
+              </div>
+
+              <hr />
+
+              <div class="h2">Protection Score</div>
+              <div class="score-display" style="margin-top:10px;">
+                <div class="score-circle" id="scoreCircle">
+                  <span class="score-value" id="scoreValue">--</span>
+                </div>
+                <div class="score-breakdown" id="scoreBreakdown"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="h2">Router Setup</div>
+              <p class="p" style="margin-top:6px;">Use the wizard to configure your router with a secure DNS provider. This blocks content across all devices on your network.</p>
+              <button class="btn primary" id="openWizardBtn" style="margin-top:10px;">Open Router Wizard</button>
+
+              <hr />
+
+              <div class="h2">DNS Check History</div>
+              <div class="list" id="dnsHistoryList" style="margin-top:10px;max-height:300px;overflow-y:auto;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logs tab -->
       <div class="card panel" id="tab-logs" style="display:none;">
         <div class="row" style="justify-content:space-between;">
           <div>
@@ -176,12 +239,60 @@
         <div class="list" id="logsList"></div>
       </div>
 
+      <!-- Subscription tab -->
+      <div class="card panel" id="tab-subscription" style="display:none;">
+        <div class="h1">Subscription</div>
+        <p class="p">Manage your Guardian Pro subscription and license.</p>
+        <hr />
+
+        <div class="grid2">
+          <div>
+            <div class="h2">Current plan</div>
+            <div class="plan-status-box" style="margin-top:10px;">
+              <div class="row" style="gap:8px;">
+                <span class="plan-indicator" id="planIndicator"></span>
+                <span id="planLabel">Free</span>
+              </div>
+              <p class="small" id="planDetail" style="margin-top:8px;"></p>
+            </div>
+
+            <hr />
+
+            <div class="h2">Activate license key</div>
+            <p class="p" style="margin-top:6px;">Enter your Guardian Pro license key.</p>
+            <div class="row" style="margin-top:8px;">
+              <input class="input" id="optLicenseKey" placeholder="GPRO-XXXX-XXXX-XXXX" style="max-width:300px;" />
+              <button class="btn primary" id="optActivateBtn">Activate</button>
+            </div>
+            <p class="small" id="optActivateStatus" style="margin-top:8px;"></p>
+          </div>
+
+          <div>
+            <div class="h2">Upgrade</div>
+            <p class="p" style="margin-top:6px;">Get DNS network blocking, router wizard, protection score and more.</p>
+            <button class="btn upgrade-btn-inline" id="subUpgradeBtn" style="margin-top:10px;">Upgrade to Pro &mdash; &euro;2.99/month</button>
+
+            <hr />
+
+            <div class="h2">What's included in Pro?</div>
+            <ul class="pro-features-list" style="margin-top:10px;">
+              <li>DNS network blocking (all devices)</li>
+              <li>Router configuration wizard</li>
+              <li>Real-time DNS monitoring</li>
+              <li>Protection score dashboard</li>
+              <li>Network change alerts</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- About tab -->
       <div class="card panel" id="tab-about" style="display:none;">
         <div class="h1">About</div>
-        <p class="p">Guardian blocks navigation based on domain and URL keyword rules. It is not a VPN or system-wide filter.</p>
+        <p class="p">Guardian blocks navigation based on domain and URL keyword rules. Guardian Pro adds network-level DNS blocking for comprehensive protection across all devices.</p>
         <hr />
         <div class="small">
-          Version: 1.0.0<br/>
+          Version: 2.0.0<br/>
           Processing: Local only<br/>
           Privacy: No tracking / no analytics
         </div>

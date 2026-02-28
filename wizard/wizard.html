@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../shared/styles.css" />
+  <link rel="stylesheet" href="./wizard.css" />
+  <title>Guardian Pro — Router Setup</title>
+</head>
+<body>
+  <div class="topbar">
+    <div class="row" style="gap:10px; align-items:center;">
+      <img src="../assets/icon48.png" width="28" height="28" alt="Guardian" style="border-radius:8px;" />
+      <div>
+        <div class="h1">Router Setup <span class="pro-text">Wizard</span></div>
+        <div class="small">Configure network-level protection</div>
+      </div>
+    </div>
+    <a href="#" id="backToSettings" class="small">Back to Settings</a>
+  </div>
+
+  <div class="wizard-page">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="step-indicators" id="stepIndicators"></div>
+
+    <!-- Step 1: Choose DNS -->
+    <div class="wizard-step card" id="step1">
+      <div class="step-number">Step 1 of 5</div>
+      <h2 class="step-title">Choose your DNS provider</h2>
+      <p class="p">Select a secure DNS provider. This will block harmful content at the network level, before it reaches any device.</p>
+
+      <div class="dns-choices" id="dnsChoices">
+        <label class="dns-choice">
+          <input type="radio" name="dns" value="opendns" checked />
+          <div class="dns-choice-content">
+            <strong>OpenDNS FamilyShield</strong>
+            <span class="small">Primary: 208.67.222.123</span>
+            <span class="small">Secondary: 208.67.220.123</span>
+            <span class="dns-tag">Recommended — easy setup, blocks adult content</span>
+          </div>
+        </label>
+
+        <label class="dns-choice">
+          <input type="radio" name="dns" value="cleanbrowsing" />
+          <div class="dns-choice-content">
+            <strong>CleanBrowsing Family</strong>
+            <span class="small">Primary: 185.228.168.168</span>
+            <span class="small">Secondary: 185.228.169.168</span>
+            <span class="dns-tag">Strict filtering — adult + mixed content</span>
+          </div>
+        </label>
+
+        <label class="dns-choice">
+          <input type="radio" name="dns" value="nextdns" />
+          <div class="dns-choice-content">
+            <strong>NextDNS</strong>
+            <span class="small">Custom IPs (requires free account at nextdns.io)</span>
+            <span class="dns-tag">Advanced — customizable categories + analytics</span>
+          </div>
+        </label>
+
+        <label class="dns-choice">
+          <input type="radio" name="dns" value="quad9" />
+          <div class="dns-choice-content">
+            <strong>Quad9</strong>
+            <span class="small">Primary: 9.9.9.9</span>
+            <span class="small">Secondary: 149.112.112.112</span>
+            <span class="dns-tag">Malware + phishing protection (less content filtering)</span>
+          </div>
+        </label>
+      </div>
+
+      <div class="step-actions">
+        <span></span>
+        <button class="btn primary" id="next1">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Choose Router -->
+    <div class="wizard-step card hidden" id="step2">
+      <div class="step-number">Step 2 of 5</div>
+      <h2 class="step-title">Select your router brand</h2>
+      <p class="p">Choose your router brand so we can show you the correct instructions. If unsure, select "Other / Generic".</p>
+
+      <div class="router-grid" id="routerGrid"></div>
+
+      <div class="step-actions">
+        <button class="btn" id="back2">Back</button>
+        <button class="btn primary" id="next2">Next</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Configure Router -->
+    <div class="wizard-step card hidden" id="step3">
+      <div class="step-number">Step 3 of 5</div>
+      <h2 class="step-title">Configure your router</h2>
+      <p class="p">Follow these steps carefully. Open your router's admin page in a new tab and apply each change.</p>
+
+      <div class="router-access card" id="routerAccess">
+        <div class="h2">Router admin page</div>
+        <div class="row" style="margin-top:8px;gap:8px;">
+          <input class="input" id="routerIp" style="max-width:200px;" />
+          <button class="btn" id="openRouter">Open in new tab</button>
+        </div>
+      </div>
+
+      <div class="dns-summary card" id="dnsSummary" style="margin-top:12px;"></div>
+
+      <ol class="steps-list" id="stepsList"></ol>
+
+      <div class="step-actions">
+        <button class="btn" id="back3">Back</button>
+        <button class="btn primary" id="next3">I've configured my router</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Change Router Password -->
+    <div class="wizard-step card hidden" id="step4">
+      <div class="step-number">Step 4 of 5</div>
+      <h2 class="step-title">Secure your router password</h2>
+      <p class="p">This is the most critical step. Change your router's admin password and give it to someone you trust.</p>
+
+      <div class="warning-box">
+        <strong>Why is this important?</strong>
+        <p>If someone can access the router settings, they can remove the DNS configuration and bypass all network protection. Changing the password and giving it to a trusted person makes the protection permanent.</p>
+      </div>
+
+      <div class="checklist">
+        <label class="check-item">
+          <input type="checkbox" id="chk1" />
+          <span>I changed my router's admin password</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" id="chk2" />
+          <span>I saved the new password somewhere safe (not on this device)</span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" id="chk3" />
+          <span>I gave the password to someone I trust (family member, friend, therapist)</span>
+        </label>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn" id="back4">Back</button>
+        <button class="btn primary" id="next4" disabled>Next</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Verify -->
+    <div class="wizard-step card hidden" id="step5">
+      <div class="step-number">Step 5 of 5</div>
+      <h2 class="step-title">Verify your protection</h2>
+      <p class="p">Let's check if everything is working correctly.</p>
+
+      <div class="verify-box card" id="verifyBox">
+        <button class="btn primary" id="verifyBtn">Run DNS check</button>
+        <div id="verifyResult" style="margin-top:12px;"></div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn" id="back5">Back</button>
+        <button class="btn primary" id="finishBtn">Finish setup</button>
+      </div>
+    </div>
+
+    <!-- Done -->
+    <div class="wizard-step card hidden" id="stepDone">
+      <div class="done-icon">&#10003;</div>
+      <h2 class="step-title" style="text-align:center;">Protection is active</h2>
+      <p class="p" style="text-align:center;max-width:500px;margin:10px auto 0;">
+        Your network is now protected. Blocked content will not load on any device connected to your Wi-Fi — regardless of browser, incognito mode, or operating system.
+      </p>
+      <div class="step-actions" style="justify-content:center;margin-top:24px;">
+        <button class="btn primary" id="doneBtn">Go to Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./wizard.js"></script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+[
+  {
+    "brand": "TP-Link",
+    "defaultIp": "192.168.0.1",
+    "steps": [
+      "Open your browser and go to 192.168.0.1 (or tplinkwifi.net)",
+      "Log in with admin credentials (default: admin / admin)",
+      "Go to Advanced → Network → DHCP Server",
+      "Change Primary DNS to 208.67.222.123 (OpenDNS FamilyShield)",
+      "Change Secondary DNS to 208.67.220.123",
+      "Click Save and reboot the router",
+      "Go to System Tools → Administration → change the admin password",
+      "Save the new password in a safe place (give it to someone you trust)"
+    ]
+  },
+  {
+    "brand": "ASUS",
+    "defaultIp": "192.168.1.1",
+    "steps": [
+      "Open your browser and go to 192.168.1.1 (or router.asus.com)",
+      "Log in with your admin credentials",
+      "Go to WAN → Internet Connection",
+      "Set 'Connect to DNS Server automatically' to No",
+      "Enter DNS Server 1: 208.67.222.123 (OpenDNS FamilyShield)",
+      "Enter DNS Server 2: 208.67.220.123",
+      "Click Apply",
+      "Go to Administration → System → change the admin password",
+      "Save the new password in a safe place (give it to someone you trust)"
+    ]
+  },
+  {
+    "brand": "Netgear",
+    "defaultIp": "192.168.1.1",
+    "steps": [
+      "Open your browser and go to 192.168.1.1 (or routerlogin.net)",
+      "Log in (default: admin / password)",
+      "Go to Internet (or Basic → Internet)",
+      "In the DNS section, select 'Use These DNS Servers'",
+      "Primary DNS: 208.67.222.123 (OpenDNS FamilyShield)",
+      "Secondary DNS: 208.67.220.123",
+      "Click Apply",
+      "Go to Advanced → Administration → Set Password",
+      "Save the new password in a safe place (give it to someone you trust)"
+    ]
+  },
+  {
+    "brand": "Linksys",
+    "defaultIp": "192.168.1.1",
+    "steps": [
+      "Open your browser and go to 192.168.1.1",
+      "Log in with your admin credentials",
+      "Go to Setup → Basic Setup (or Connectivity → Internet Settings)",
+      "Under DNS, enter Static DNS 1: 208.67.222.123",
+      "Static DNS 2: 208.67.220.123",
+      "Click Save Settings",
+      "Go to Administration → Management → change the router password",
+      "Save the new password in a safe place (give it to someone you trust)"
+    ]
+  },
+  {
+    "brand": "D-Link",
+    "defaultIp": "192.168.0.1",
+    "steps": [
+      "Open your browser and go to 192.168.0.1",
+      "Log in (default: admin / blank password)",
+      "Go to Setup → Internet Setup → Manual Internet Connection Setup",
+      "Primary DNS: 208.67.222.123 (OpenDNS FamilyShield)",
+      "Secondary DNS: 208.67.220.123",
+      "Click Save Settings",
+      "Go to Tools → Admin → change the admin password",
+      "Save the new password in a safe place (give it to someone you trust)"
+    ]
+  },
+  {
+    "brand": "Huawei",
+    "defaultIp": "192.168.1.1",
+    "steps": [
+      "Open your browser and go to 192.168.1.1",
+      "Log in with your admin credentials",
+      "Go to Settings → DHCP → LAN",
+      "Change Primary DNS to 208.67.222.123",
+      "Change Secondary DNS to 208.67.220.123",
+      "Click Save/Apply",
+      "Go to System → Change Password",
+      "Save the new password in a safe place (give it to someone you trust)"
+    ]
+  },
+  {
+    "brand": "Xiaomi / Redmi",
+    "defaultIp": "192.168.31.1",
+    "steps": [
+      "Open your browser and go to 192.168.31.1 (or miwifi.com)",
+      "Log in with your admin credentials",
+      "Go to Common settings → Internet settings",
+      "Change DNS settings to manual",
+      "DNS 1: 208.67.222.123 (OpenDNS FamilyShield)",
+      "DNS 2: 208.67.220.123",
+      "Click Apply",
+      "Go to Security → Change admin password",
+      "Save the new password in a safe place (give it to someone you trust)"
+    ]
+  },
+  {
+    "brand": "ZTE",
+    "defaultIp": "192.168.1.1",
+    "steps": [
+      "Open your browser and go to 192.168.1.1",
+      "Log in (default: admin / admin or user / user)",
+      "Go to Network → LAN → DHCP Server",
+      "Primary DNS: 208.67.222.123",
+      "Secondary DNS: 208.67.220.123",
+      "Click Submit/Save",
+      "Go to Administration → User Management → change the password",
+      "Save the new password in a safe place (give it to someone you trust)"
+    ]
+  },
+  {
+    "brand": "Other / Generic",
+    "defaultIp": "192.168.1.1",
+    "steps": [
+      "Find your router's IP: open Command Prompt and type 'ipconfig' (look for Default Gateway)",
+      "Open that IP in your browser and log in with admin credentials",
+      "Look for DNS settings (usually under Internet, WAN, DHCP, or Network settings)",
+      "Change Primary DNS to 208.67.222.123 (OpenDNS FamilyShield)",
+      "Change Secondary DNS to 208.67.220.123",
+      "Save and reboot the router",
+      "Find the admin password setting and change it to something strong",
+      "Save the new password in a safe place (give it to someone you trust)"
+    ]
+  }
+]

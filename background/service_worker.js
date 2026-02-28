@@ -1,11 +1,18 @@
 import { rebuildDynamicRules } from "../shared/rules.js";
+import { initLicense } from "../shared/license.js";
+import { detectDNS, getDNSStatus } from "../shared/dns-detector.js";
+import { storageGet } from "../shared/utils.js";
+import { canUseFeature } from "../shared/features.js";
+
+const DNS_CHECK_ALARM = "guardian-dns-check";
+const DNS_CHECK_INTERVAL_MINUTES = 360; // 6 hours
+
+initLicense();
 
 chrome.runtime.onInstalled.addListener(async (details) => {
   const defaults = {
-    // Setup-first: Guardian stays disabled until a password is created.
     enabled: false,
     setupComplete: false,
-    // Recommended defaults (applied immediately after setup is completed)
     recommendedBlockedDomains: ["xvideos.com", "spankbang.com", "onlyfans.com", "pornhub.com", "xhamster.com", "redtube.com", "youporn.com"],
     recommendedBlockedKeywords: ["porn", "xxx", "gore", "violence", "onlyfans", "spankbang", "xvideos", "pornhub", "xhamster", "redtube", "youporn"],
     blockedDomains: [],
@@ -23,39 +30,62 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 
   const current = await chrome.storage.local.get(Object.keys(defaults));
   const toSet = {};
-  for (const k of Object.keys(defaults)){
+  for (const k of Object.keys(defaults)) {
     if (typeof current[k] === "undefined") toSet[k] = defaults[k];
   }
-  
-  // Save installation date only on first install
-  if(details.reason === "install"){
+
+  if (details.reason === "install") {
     toSet.installedAt = new Date().toISOString();
   }
-  
+
   if (Object.keys(toSet).length) {
     await chrome.storage.local.set(toSet);
-    // The onChanged listener will be triggered automatically and call rebuildDynamicRules
   } else {
-    // If there's nothing to set, we need to call manually
     await rebuildDynamicRules();
   }
 
-  // Force onboarding / password setup on install or update
-  try{
+  await chrome.alarms.create(DNS_CHECK_ALARM, {
+    delayInMinutes: 1,
+    periodInMinutes: DNS_CHECK_INTERVAL_MINUTES
+  });
+
+  try {
     await chrome.runtime.openOptionsPage();
-  }catch(e){ /* ignore */ }
+  } catch (_) { /* ignore */ }
 });
 
 chrome.storage.onChanged.addListener(async (changes, area) => {
-  if(area !== "local") return;
+  if (area !== "local") return;
   const keys = Object.keys(changes);
   const triggers = [
     "enabled",
-    "blockedDomains","blockedSubdomains","blockedKeywords",
-    "allowDomains","allowSubdomains",
-    "tempAllowDomains","tempAllowUrls"
+    "blockedDomains", "blockedSubdomains", "blockedKeywords",
+    "allowDomains", "allowSubdomains",
+    "tempAllowDomains", "tempAllowUrls"
   ];
-  if(keys.some(k => triggers.includes(k))){
+  if (keys.some(k => triggers.includes(k))) {
     await rebuildDynamicRules();
+  }
+});
+
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name !== DNS_CHECK_ALARM) return;
+
+  const canCheck = await canUseFeature("dns_detection");
+  if (!canCheck) return;
+
+  const prevStatus = await getDNSStatus();
+  const newStatus = await detectDNS();
+
+  if (prevStatus.active && !newStatus.active) {
+    try {
+      await chrome.notifications.create("dns-warning", {
+        type: "basic",
+        iconUrl: "assets/icon128.png",
+        title: "Guardian Pro — DNS Alert",
+        message: "Secure DNS is no longer active on your network. Your protection may have been changed.",
+        priority: 2
+      });
+    } catch (_) { /* notifications may not be available */ }
   }
 });

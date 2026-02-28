@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../shared/styles.css" />
+  <link rel="stylesheet" href="./upgrade.css" />
+  <title>Guardian Pro</title>
+</head>
+<body>
+  <div class="topbar">
+    <div class="row" style="gap:10px; align-items:center;">
+      <img src="../assets/icon48.png" width="28" height="28" alt="Guardian" style="border-radius:8px;" />
+      <div>
+        <div class="h1">Guardian <span class="pro-text">Pro</span></div>
+        <div class="small">Network-level protection</div>
+      </div>
+    </div>
+    <a href="#" id="backToSettings" class="small">Back to Settings</a>
+  </div>
+
+  <div class="upgrade-page">
+    <div class="hero">
+      <h1 class="hero-title">Take control of your entire network</h1>
+      <p class="hero-sub">Guardian Pro doesn't rely on willpower alone. It creates a real technical barrier that blocks content across every device on your network.</p>
+    </div>
+
+    <div class="plans-grid">
+      <div class="plan-card">
+        <div class="plan-header">
+          <div class="plan-name">Guardian Free</div>
+          <div class="plan-price">€0</div>
+          <div class="small">Forever free</div>
+        </div>
+        <ul class="plan-features">
+          <li class="included">Domain blocking</li>
+          <li class="included">Keyword blocking</li>
+          <li class="included">Incognito protection</li>
+          <li class="included">Password lock</li>
+          <li class="included">Recovery codes</li>
+          <li class="not-included">DNS network blocking</li>
+          <li class="not-included">Router configuration wizard</li>
+          <li class="not-included">DNS status monitoring</li>
+          <li class="not-included">Protection score</li>
+          <li class="not-included">Network alerts</li>
+        </ul>
+        <div class="plan-footer">
+          <button class="btn" disabled>Current plan</button>
+        </div>
+      </div>
+
+      <div class="plan-card featured">
+        <div class="plan-badge">Recommended</div>
+        <div class="plan-header">
+          <div class="plan-name">Guardian <span class="pro-text">Pro</span></div>
+          <div class="plan-price">€2.99<span class="plan-period">/month</span></div>
+          <div class="small">Billed monthly &middot; Cancel anytime</div>
+        </div>
+        <ul class="plan-features">
+          <li class="included">Everything in Free</li>
+          <li class="included highlight">DNS network blocking (all devices)</li>
+          <li class="included highlight">Router configuration wizard</li>
+          <li class="included highlight">Real-time DNS monitoring</li>
+          <li class="included highlight">Protection score dashboard</li>
+          <li class="included highlight">Network change alerts</li>
+          <li class="included highlight">Priority support</li>
+        </ul>
+        <div class="plan-footer">
+          <button class="btn primary" id="subscribeBtn">Subscribe to Pro</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="activate-section card">
+      <div class="h2">Already have a license key?</div>
+      <p class="p" style="margin-top:6px;">Enter your Guardian Pro license key below to activate.</p>
+      <div class="row" style="margin-top:10px;">
+        <input class="input" id="licenseKeyInput" placeholder="GPRO-XXXX-XXXX-XXXX" style="max-width:320px;" />
+        <button class="btn primary" id="activateBtn">Activate</button>
+      </div>
+      <p class="small" id="activateStatus" style="margin-top:8px;"></p>
+    </div>
+
+    <div class="info-section">
+      <div class="info-card card">
+        <div class="h2">How does DNS blocking work?</div>
+        <p class="p" style="margin-top:8px;">When you configure a secure DNS on your router, every device on your network (phones, tablets, computers, smart TVs) is protected. Blocked websites simply don't load — regardless of browser, incognito mode, or operating system.</p>
+      </div>
+
+      <div class="info-card card">
+        <div class="h2">Why change the router password?</div>
+        <p class="p" style="margin-top:8px;">After configuring the DNS, changing your router's admin password and giving it to someone you trust makes the protection permanent. No one can undo the DNS settings without that password.</p>
+      </div>
+
+      <div class="info-card card">
+        <div class="h2">Privacy & transparency</div>
+        <p class="p" style="margin-top:8px;">Guardian Pro does not spy on traffic, does not monitor personal content, and does not send browsing history. Everything works through DNS rules + local extension rules, with a focus on ethics and privacy.</p>
+      </div>
+    </div>
+
+    <div class="dns-options card">
+      <div class="h2">Supported DNS providers</div>
+      <div class="dns-grid" style="margin-top:12px;">
+        <div class="dns-item">
+          <strong>OpenDNS FamilyShield</strong>
+          <span class="small">208.67.222.123 / 208.67.220.123</span>
+          <span class="small">Best for: families, adult content filtering</span>
+        </div>
+        <div class="dns-item">
+          <strong>CleanBrowsing Family</strong>
+          <span class="small">185.228.168.168 / 185.228.169.168</span>
+          <span class="small">Best for: strict adult + mixed content blocking</span>
+        </div>
+        <div class="dns-item">
+          <strong>NextDNS</strong>
+          <span class="small">Custom IPs (via nextdns.io account)</span>
+          <span class="small">Best for: advanced custom filtering + analytics</span>
+        </div>
+        <div class="dns-item">
+          <strong>Quad9</strong>
+          <span class="small">9.9.9.9 / 149.112.112.112</span>
+          <span class="small">Best for: malware + phishing protection</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./upgrade.js"></script>
+</body>
+</html>
