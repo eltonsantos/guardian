@@ -30,7 +30,7 @@
   "content_scripts": [
     {
       "matches": ["https://extensionpay.com/*"],
-      "js": ["shared/ExtPay/dist/ExtPay.js"],
+      "js": ["shared/ExtPay.js"],
       "run_at": "document_start"
     }
   ],

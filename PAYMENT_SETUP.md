@@ -25,7 +25,7 @@ servidor, ou base de dados. Tudo é gerido pela plataforma.
    - **Extension ID**: `guardian-pro` (ou outro nome único)
    - **Pricing**: Subscription
    - **Price**: €2.99/month (ou USD $2.99 — o Stripe converte automaticamente)
-   - **Free trial**: 7 days (opcional)
+   - **Free trial**: 7 days (recomendado — permite dar acesso Pro a utilizadores de teste sem cobrança; ver secção "Utilizadores de teste" abaixo)
 3. Clique em **"Create"**
 4. Copie o **Extension ID** que foi gerado
 
@@ -114,40 +114,18 @@ import ExtPay from "./ExtPay.js";
 
 ---
 
-## Alternativa: Chave de Licença Manual (sem ExtensionPay)
+## Utilizadores de teste
 
-Se preferir não usar ExtensionPay, o Guardian Pro já suporta chaves de licença locais.
+O Guardian Pro só considera um utilizador "Pro" quando o pagamento é feito via ExtensionPay (Stripe). Não existe ativação por chave de licença na interface.
 
-### Como funciona:
+Para dar acesso Pro a testadores sem cobrança:
 
-1. O código em `shared/license.js` tem a função `generateLicenseKey()`
-2. Você gera chaves no formato `GPRO-XXXX-XXXX-XXXX`
-3. O utilizador compra a chave (via Stripe Payment Link, Gumroad, etc.)
-4. O utilizador insere a chave na extensão (tab Subscription ou página Upgrade)
-5. A extensão valida o formato e ativa o Pro
+1. **Ative o trial de 7 dias** no ExtensionPay (Passo 2 acima: "Free trial: 7 days").
+2. Os testadores clicam em "Upgrade to Pro" / "Subscribe to Pro" e completam o checkout com um **cartão de teste** do Stripe (em modo sandbox).
+3. Durante os 7 dias de trial não são cobrados; têm acesso completo às funcionalidades Pro.
+4. Após o trial, podem cancelar ou passar a pagar.
 
-### Configurar com Stripe Payment Links (sem backend):
-
-1. Crie uma conta em **https://stripe.com**
-2. Vá a **Products** → **Add product**
-   - Nome: "Guardian Pro"
-   - Preço: €2.99/mês (recurring)
-3. Vá a **Payment Links** → **Create payment link**
-   - Selecione o produto Guardian Pro
-   - Ative "Collect email"
-   - Personalize a página de checkout
-4. Copie o link gerado (ex: `https://buy.stripe.com/xxxx`)
-5. Após pagamento, envie manualmente uma chave de licença por email
-
-### Gerar chaves de licença:
-
-Abra o console do Chrome na página da extensão e execute:
-
-```javascript
-import('./shared/license.js').then(m => console.log(m.generateLicenseKey()));
-```
-
-Ou crie um script simples para gerar múltiplas chaves.
+Cartão de teste Stripe (sandbox): `4242 4242 4242 4242`, data futura, CVC qualquer.
 
 ---
 

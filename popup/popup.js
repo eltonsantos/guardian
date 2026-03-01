@@ -149,6 +149,10 @@ document.getElementById("openOptions").addEventListener("click", async (e) => {
   e.preventDefault();
   await chrome.runtime.openOptionsPage();
 });
+document.getElementById("openGuidePopup")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  chrome.tabs.create({ url: chrome.runtime.getURL("guide/guide.html") });
+});
 
 document.getElementById("openOptions2")?.addEventListener("click", async () => {
   await chrome.runtime.openOptionsPage();

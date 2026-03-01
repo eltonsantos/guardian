@@ -33,9 +33,22 @@
       <button class="navbtn" data-tab="logs">Logs</button>
       <button class="navbtn" data-tab="subscription">Subscription</button>
       <button class="navbtn" data-tab="about">About</button>
+      <a href="#" class="navbtn" id="openGuideBtn" style="text-decoration:none;color:inherit;text-align:left;">Guia</a>
     </div>
 
     <div class="content">
+      <!-- Onboarding (first run) -->
+      <div id="onboardingPanel" class="card" style="display:none; margin-bottom:20px; padding:20px; border:1px solid var(--border);">
+        <div class="h1" style="margin-bottom:8px;">Bem-vindo ao Guardian</div>
+        <p class="p" style="margin-bottom:16px;">Siga estes passos para começar:</p>
+        <ol class="p" style="margin:0 0 16px 20px; line-height:1.6;">
+          <li><strong>Definir palavra-passe</strong> — No separador Protection, crie uma palavra-passe para ativar a proteção.</li>
+          <li><strong>Ativar proteção</strong> — Use o interruptor no topo para ligar o bloqueio.</li>
+          <li><strong>Opcional:</strong> Faça upgrade a Pro (separador Subscription) para proteção em toda a rede (DNS, router, alertas).</li>
+        </ol>
+        <p class="p small" style="margin-bottom:12px;">Pode consultar o guia completo em qualquer momento clicando em <strong>Guia</strong> na barra lateral.</p>
+        <button class="btn primary" id="onboardingDismiss">Continuar</button>
+      </div>
       <!-- Rules tab -->
       <div class="card panel" id="tab-rules">
         <div class="row" style="justify-content:space-between;">
@@ -241,8 +254,15 @@
 
       <!-- Subscription tab -->
       <div class="card panel" id="tab-subscription" style="display:none;">
+        <div id="proOnboardingBanner" class="card" style="display:none; margin-bottom:16px; padding:14px; border:1px solid var(--primary); background: rgba(37, 99, 235, 0.08);">
+          <p class="p" style="margin:0 0 10px 0;">Agora tens acesso à proteção de rede. Abre o separador <strong>Network</strong> para configurar o DNS e o assistente do router.</p>
+          <div class="row" style="gap:10px;">
+            <a href="#" id="proBannerOpenGuide" class="small">Ver guia completo</a>
+            <button class="btn small" id="proBannerDismiss" style="padding:4px 10px;">Não mostrar outra vez</button>
+          </div>
+        </div>
         <div class="h1">Subscription</div>
-        <p class="p">Manage your Guardian Pro subscription and license.</p>
+        <p class="p">Manage your Guardian Pro subscription.</p>
         <hr />
 
         <div class="grid2">
@@ -256,15 +276,6 @@
               <p class="small" id="planDetail" style="margin-top:8px;"></p>
             </div>
 
-            <hr />
-
-            <div class="h2">Activate license key</div>
-            <p class="p" style="margin-top:6px;">Enter your Guardian Pro license key.</p>
-            <div class="row" style="margin-top:8px;">
-              <input class="input" id="optLicenseKey" placeholder="GPRO-XXXX-XXXX-XXXX" style="max-width:300px;" />
-              <button class="btn primary" id="optActivateBtn">Activate</button>
-            </div>
-            <p class="small" id="optActivateStatus" style="margin-top:8px;"></p>
           </div>
 
           <div>
@@ -295,6 +306,13 @@
           Version: 2.0.0<br/>
           Processing: Local only<br/>
           Privacy: No tracking / no analytics
+        </div>
+        <hr />
+        <div class="h2">Desenvolvido por</div>
+        <p class="p" style="margin-top:8px;">Elton Santos. Se este projeto te ajudou, considere apoiar.</p>
+        <div class="row" style="margin-top:12px; gap:16px; flex-wrap:wrap;">
+          <a href="https://www.linkedin.com/in/eltonmelosantos" target="_blank" rel="noopener noreferrer" class="small">LinkedIn</a>
+          <span class="small">Apoie via PIX: <strong id="pixKeyDisplay">eltin182@gmail.com</strong></span>
         </div>
       </div>
     </div>

@@ -37,8 +37,7 @@ export async function isPro() {
       return Boolean(cache && cache.paid);
     }
   }
-  const data = await storageGet([LICENSE_KEY]);
-  return validateLocalKey(data[LICENSE_KEY]);
+  return false;
 }
 
 export async function getProStatus() {

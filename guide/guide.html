@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../shared/styles.css" />
+  <title>Guardian — Guia</title>
+  <style>
+    .guide-page { max-width: 720px; margin: 0 auto; padding: 24px 20px; }
+    .guide-page .h1 { font-size: 20px; margin-bottom: 8px; }
+    .guide-page .h2 { font-size: 14px; margin: 20px 0 8px; color: var(--text); text-transform: none; letter-spacing: 0; }
+    .guide-page .p { margin-bottom: 10px; }
+    .guide-page ul { margin: 8px 0 16px; padding-left: 22px; }
+    .guide-page li { margin-bottom: 6px; }
+    .guide-page .step { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; margin-bottom: 12px; }
+    .guide-page .back-link { display: inline-block; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div class="guide-page">
+    <a href="#" id="backToOptions" class="back-link small">← Voltar às definições</a>
+
+    <h1 class="h1">Como usar o Guardian</h1>
+    <p class="p">Guia passo a passo para configurar a proteção e, se for subscritor Pro, usar a proteção de rede.</p>
+
+    <div class="h2">1. Configuração inicial (todos os utilizadores)</div>
+    <div class="step">
+      <strong>Passo 1 — Definir palavra-passe</strong>
+      <p class="p" style="margin-top:8px;">Abra as definições da extensão (ícone Guardian → Settings, ou clique no link acima). Vá ao separador <strong>Protection</strong>, defina uma palavra-passe e guarde. Isto ativa a proteção e aplica a lista de bloqueios recomendada.</p>
+    </div>
+    <div class="step">
+      <strong>Passo 2 — Ativar a proteção</strong>
+      <p class="p" style="margin-top:8px;">No popup da extensão ou nas definições, use o interruptor para ligar a proteção. Quando estiver ON, os domínios e palavras-chave bloqueados não abrem no Chrome.</p>
+    </div>
+    <div class="step">
+      <strong>Passo 3 (opcional) — Bloquear em modo anónimo</strong>
+      <p class="p" style="margin-top:8px;">Para que o bloqueio funcione também em janelas anónimas, abra <code>chrome://extensions</code>, encontre o Guardian e ative <strong>Permitir em modo anónimo</strong>. Nas definições, separador Protection, pode ativar "Block navigation in Incognito windows".</p>
+    </div>
+
+    <div class="h2">2. Versão Free vs Pro</div>
+    <ul>
+      <li><strong>Free:</strong> Bloqueio apenas no Chrome (domínios e palavras-chave que configurar nas regras).</li>
+      <li><strong>Pro:</strong> Tudo o que o Free oferece, mais proteção à escala da rede: deteção de DNS seguro, assistente para configurar o router, pontuação de proteção e alertas quando o DNS deixa de estar ativo.</li>
+    </ul>
+    <p class="p">Para subscrever Pro, use o botão "Upgrade to Pro" nas definições (separador Subscription) ou no popup.</p>
+
+    <div class="h2">3. Se és subscritor Pro — Onde está a proteção de rede?</div>
+    <p class="p">As funcionalidades Pro ficam no separador <strong>Network</strong> das definições (barra lateral → Network). Aí tens:</p>
+    <ul>
+      <li><strong>Estado do DNS</strong> — Ver se a rede está a usar um DNS de filtro (NextDNS, OpenDNS, etc.) e o momento da última verificação.</li>
+      <li><strong>Protection Score</strong> — Uma pontuação de 0 a 100% que combina: extensão ligada (+30), bloqueio com palavra-passe ativo (+20) e DNS seguro ativo na rede (+50). Quanto mais alto, mais camadas de proteção estão ativas.</li>
+      <li><strong>Router Setup (assistente)</strong> — Botão "Open Router Wizard" que abre um guia passo a passo: escolher o router, o fornecedor de DNS e seguir as instruções para configurar o router. No fim, podes verificar se o DNS está ativo.</li>
+      <li><strong>Histórico de verificações DNS</strong> — Lista das últimas verificações (ativo ou não, e em que data).</li>
+    </ul>
+
+    <div class="h2">4. Monitorização DNS e alertas</div>
+    <p class="p">A extensão verifica periodicamente (por exemplo a cada 6 horas) se a tua rede está a usar um DNS de filtro. Se antes estava ativo e deixar de estar (por exemplo alguém alterou o router), recebes uma <strong>notificação no browser</strong>: "Secure DNS is no longer active on your network". Podes então ir a definições → Network e voltar a configurar o DNS ou verificar o router.</p>
+
+    <div class="h2">5. Resumo rápido</div>
+    <ul>
+      <li>Definir palavra-passe (Protection) → Ativar proteção (toggle) → Opcional: permitir em modo anónimo.</li>
+      <li>Pro: subscrever via "Upgrade to Pro" (ExtensionPay/Stripe).</li>
+      <li>Pro: definições → Network para ver DNS, Protection Score, Router Wizard e histórico.</li>
+      <li>Alertas de rede: notificação quando o DNS seguro deixa de estar ativo.</li>
+    </ul>
+
+    <p class="p" style="margin-top:24px;"><a href="#" id="backToOptions2">← Voltar às definições</a></p>
+  </div>
+  <script type="module">
+    document.getElementById("backToOptions").addEventListener("click", (e) => {
+      e.preventDefault();
+      chrome.runtime.openOptionsPage();
+    });
+    document.getElementById("backToOptions2").addEventListener("click", (e) => {
+      e.preventDefault();
+      chrome.runtime.openOptionsPage();
+    });
+  </script>
+</body>
+</html>

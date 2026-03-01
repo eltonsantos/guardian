@@ -8,7 +8,7 @@ import {
 
 import { rebuildDynamicRules } from "../shared/rules.js";
 import { hasPassword, verifyCredential } from "../shared/auth.js";
-import { isPro, activateLocalKey, openPaymentPage, getProStatus } from "../shared/license.js";
+import { isPro, openPaymentPage, getProStatus } from "../shared/license.js";
 import { detectDNS, getDNSStatus, getDNSHistory, getProtectionScore } from "../shared/dns-detector.js";
 
 let unlockedUntil = 0;
@@ -454,52 +454,48 @@ async function checkDnsNow() {
 
 // --- Subscription tab ---
 
+const PRO_ONBOARDING_SEEN_KEY = "proOnboardingSeen";
+
 async function refreshSubscriptionTab() {
   const status = await getProStatus();
   const indicator = document.getElementById("planIndicator");
   const label = document.getElementById("planLabel");
   const detail = document.getElementById("planDetail");
   const upgradeBtn = document.getElementById("subUpgradeBtn");
+  const proBanner = document.getElementById("proOnboardingBanner");
 
   if (status.isPro) {
     indicator.className = "plan-indicator active";
     label.textContent = "Guardian Pro";
-    detail.textContent = status.provider === "extpay"
-      ? "Managed via ExtensionPay/Stripe."
-      : `License key: ${status.key || "Active"}`;
+    detail.textContent = "Managed via ExtensionPay/Stripe.";
     upgradeBtn.textContent = "Active";
     upgradeBtn.disabled = true;
+    const proSeen = (await storageGet([PRO_ONBOARDING_SEEN_KEY]))[PRO_ONBOARDING_SEEN_KEY];
+    if (proBanner && !proSeen) proBanner.style.display = "block";
   } else {
     indicator.className = "plan-indicator free";
     label.textContent = "Free";
     detail.textContent = "Upgrade to unlock network protection features.";
     upgradeBtn.disabled = false;
+    if (proBanner) proBanner.style.display = "none";
   }
 }
 
-async function activateLicense() {
-  const input = document.getElementById("optLicenseKey");
-  const statusEl = document.getElementById("optActivateStatus");
-  const key = (input.value || "").trim();
-
-  if (!key) {
-    statusEl.textContent = "Please enter a license key.";
-    statusEl.style.color = "var(--danger)";
-    return;
-  }
-
-  const result = await activateLocalKey(key);
-  if (result.ok) {
-    statusEl.textContent = "License activated! Guardian Pro is now active.";
-    statusEl.style.color = "var(--success)";
-    input.value = "";
-    await refreshHeader();
-    await refreshSubscriptionTab();
-    await refreshNetworkTab();
-  } else {
-    statusEl.textContent = "Invalid license key. Format: GPRO-XXXX-XXXX-XXXX";
-    statusEl.style.color = "var(--danger)";
-  }
+function setupProOnboardingBanner() {
+  const banner = document.getElementById("proOnboardingBanner");
+  const dismissBtn = document.getElementById("proBannerDismiss");
+  const guideLink = document.getElementById("proBannerOpenGuide");
+  if (!banner || !dismissBtn || !guideLink) return;
+  const hideAndMarkSeen = async () => {
+    await storageSet({ [PRO_ONBOARDING_SEEN_KEY]: true });
+    banner.style.display = "none";
+  };
+  dismissBtn.addEventListener("click", hideAndMarkSeen);
+  guideLink.addEventListener("click", async (e) => {
+    e.preventDefault();
+    await hideAndMarkSeen();
+    chrome.tabs.create({ url: chrome.runtime.getURL("guide/guide.html") });
+  });
 }
 
 // --- Event listeners ---
@@ -534,7 +530,13 @@ document.getElementById("openWizardBtn")?.addEventListener("click", () => {
 
 document.getElementById("networkUpgradeBtn")?.addEventListener("click", () => openPaymentPage());
 document.getElementById("subUpgradeBtn")?.addEventListener("click", () => openPaymentPage());
-document.getElementById("optActivateBtn")?.addEventListener("click", activateLicense);
+
+document.getElementById("openGuideBtn")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  chrome.tabs.create({ url: chrome.runtime.getURL("guide/guide.html") });
+});
+
+const ONBOARDING_SEEN_KEY = "onboardingSeen";
 
 (async function init() {
   await refreshHeader();
@@ -545,10 +547,24 @@ document.getElementById("optActivateBtn")?.addEventListener("click", activateLic
 
   const setupDone = await isSetupComplete();
   const pw = await hasPassword();
+
+  const onboardingPanel = document.getElementById("onboardingPanel");
+  const seen = (await storageGet([ONBOARDING_SEEN_KEY]))[ONBOARDING_SEEN_KEY];
+  if (onboardingPanel && !seen) {
+    onboardingPanel.style.display = "block";
+  }
+  document.getElementById("onboardingDismiss")?.addEventListener("click", async () => {
+    await storageSet({ [ONBOARDING_SEEN_KEY]: true });
+    if (onboardingPanel) onboardingPanel.style.display = "none";
+  });
+
+  setupProOnboardingBanner();
+
   if (!setupDone || !pw) {
     setTab("protection");
     const banner = document.getElementById("setupBanner");
     if (banner) banner.hidden = false;
+    if (!onboardingPanel || seen) return;
     return;
   }
   setTab("rules");
